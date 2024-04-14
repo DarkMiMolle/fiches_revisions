@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/DarkMiMolle/Fiche/backend/controller"
+	"github.com/DarkMiMolle/Fiche/backend/middleware"
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -31,25 +32,30 @@ func main() {
 	server.Use(utils.SetupContextMiddleware(db))
 
 	server.POST("/api/singup", controller.SingUp)
+	server.POST("/api/login", controller.Login)
 	server.GET("/api/collection", func(c *gin.Context) {
-		collection, exists := c.GetQuery("collection")
+		groupName, exists := c.GetQuery("groupName")
 		if !exists {
-			c.JSON(http.StatusBadRequest, "missing query 'collection'")
+			c.JSON(http.StatusBadRequest, "missing query 'groupName'")
 			return
 		}
 
-		result, err := db.Collection("collections").Find(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": collection})
+		result, err := db.Collection("collections").Find(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": groupName})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, c.Error(err))
 			return
 		}
-		var coll []models.Collection
+		var coll []models.Group
 		if err := result.All(c, &coll); err != nil {
 			c.JSON(http.StatusInternalServerError, c.Error(err))
 			return
 		}
 		c.JSON(http.StatusOK, coll)
 	})
+
+	requiredAuth := server.Group("", middleware.JwtAuthMiddleware())
+
+	requiredAuth.GET("/api/collections", controller.ListGroups)
 	fmt.Println(os.Getenv("URL"))
 	server.Run("0.0.0.0:3030")
 }

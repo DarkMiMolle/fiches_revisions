@@ -28,6 +28,7 @@ services:
       - MONGODB_URI=mongodb://user:pass@mongodb:27017/
       - DB_NAME=fiches
       - USER_COLLECTION=users
+      - GROUP_COLLECTION=groups
       - URL=localhost:3030
       - API_SECRET=secret_api_value
     depends_on:

@@ -4,6 +4,7 @@ import (
 	"github.com/DarkMiMolle/Fiche/backend/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func JwtAuthMiddleware() gin.HandlerFunc {
@@ -16,7 +17,12 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		}
 		tokenInfo, err := utils.ExtractTokenInfo(token)
 		if err != nil {
-			c.String(http.StatusUnauthorized, "Unauthorized")
+			c.String(http.StatusUnauthorized, "Unauthorized: %v", err.Error())
+			c.Abort()
+			return
+		}
+		if tokenInfo.ExpireDate.Before(time.Now()) {
+			c.String(http.StatusUnauthorized, "Token expired")
 			c.Abort()
 			return
 		}

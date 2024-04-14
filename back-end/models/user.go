@@ -1,6 +1,7 @@
 package models
 
 import (
+	"golang.org/x/crypto/bcrypt"
 	"regexp"
 )
 
@@ -15,6 +16,10 @@ func (email Email) IsValid() bool {
 }
 
 type Password string
+
+func (pwd Password) Match(password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(pwd), []byte(password)) == nil
+}
 
 type User struct {
 	Email    Email    `json:"email" bson:"email"`

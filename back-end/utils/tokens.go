@@ -55,7 +55,8 @@ func ExtractTokenInfo(tokenStr string) (TokenInfo, error) {
 	info := TokenInfo{}
 	if ok && token.Valid {
 		info.UserEmail = models.Email(claims["user_email"].(string))
-		info.ExpireDate = time.Unix(claims["exp"].(int64), 0)
+		fmt.Printf("%+v (exp: %T)\n", claims, claims["exp"])
+		info.ExpireDate = time.Unix(int64(claims["exp"].(float64)), 0)
 		return info, nil
 	}
 	return info, fmt.Errorf("invalid token")
@@ -67,10 +68,10 @@ func AddToken(c *gin.Context, token TokenInfo) {
 	c.Set(contextToken, token)
 }
 
-//func GetToken(c *gin.Context) TokenInfo {
-//	token, exists := c.Get(contextToken)
-//	if !exists {
-//		panic("GetToken must be call only if the appropriate middleware is call")
-//	}
-//	return token.(TokenInfo)
-//}
+func GetTokenInfo(c *gin.Context) (TokenInfo, error) {
+	token, exists := c.Get(contextToken)
+	if !exists {
+		return TokenInfo{}, fmt.Errorf("internal auth error")
+	}
+	return token.(TokenInfo), nil
+}
