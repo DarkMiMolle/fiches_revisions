@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/DarkMiMolle/Fiche/backend/controller"
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -29,6 +30,7 @@ func main() {
 	server := gin.Default()
 	server.Use(utils.SetupContextMiddleware(db))
 
+	server.POST("/api/singup", controller.SingUp)
 	server.GET("/api/collection", func(c *gin.Context) {
 		collection, exists := c.GetQuery("collection")
 		if !exists {

@@ -1,10 +1,20 @@
 package models
 
+import (
+	"regexp"
+)
+
 type Email string
 
-type Password struct {
-	value string
+func (email Email) IsValid() bool {
+	match, err := regexp.Match(`^[\w-.]+@([\w-]+\.)+[\w-]{2,}$`, []byte(email))
+	if err != nil {
+		panic(err.Error())
+	}
+	return match
 }
+
+type Password string
 
 type User struct {
 	Email    Email    `json:"email" bson:"email"`
