@@ -29,7 +29,7 @@
 
 <button 
     on:click={turnCard}
-    on:keypress={({key}: KeyboardEvent) => {key == "Enter" ? turnCard() : null}}
+    on:keypress={({key}) => {key == "Enter" ? turnCard() : null}}
     class="card"
     bind:this={button}
 >

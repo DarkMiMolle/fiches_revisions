@@ -2,7 +2,7 @@
     import Card from "$lib/Card.svelte"
     import {loadData, loadCollection} from "$lib/data";
 
-    const data = loadData()
+    // const data = loadData()
 
     
 </script>
