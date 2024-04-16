@@ -19,7 +19,7 @@ import (
 func main() {
 	fmt.Println("Hello there !")
 
-	mongoUri := os.Getenv("MONGODB_URI")
+	mongoUri := os.Getenv(env.MongodbUri)
 	fmt.Println(mongoUri)
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoUri))
 	if err != nil {
@@ -27,7 +27,7 @@ func main() {
 	}
 	defer client.Disconnect(context.Background())
 
-	databaseName := os.Getenv("DB_NAME")
+	databaseName := os.Getenv(env.DbName)
 	db := client.Database(databaseName)
 	server := gin.Default()
 	server.Use(utils.SetupContextMiddleware(db))
