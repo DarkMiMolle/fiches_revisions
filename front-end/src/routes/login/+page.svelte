@@ -4,6 +4,6 @@
 
 <form method="POST">
     <Label for="Pseudo">Pseudo</Label>
-    <Input type="text" id="Pseudo" name="pseudo"/>
-	<Button type="submit">log in</Button>
+    <Input type="text" id="Pseudo" name="pseudo" placeholder={"TODO"} />
+	<Button type="submit" class="mt-10">log in</Button>
 </form>
