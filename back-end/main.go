@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/DarkMiMolle/Fiche/backend/controller"
 	"github.com/DarkMiMolle/Fiche/backend/env"
@@ -42,13 +43,18 @@ func main() {
 		}
 
 		result := db.Collection(os.Getenv(env.GroupCollection)).FindOne(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": groupName})
-		if result.Err() != nil {
-			c.JSON(http.StatusInternalServerError, c.Error(err))
+		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
+			c.JSON(utils.Success([]struct{}{}))
 			return
 		}
+		if result.Err() != nil {
+			c.JSON(utils.InternalError(err))
+			return
+		}
+
 		var coll models.Group
 		if err := result.Decode(&coll); err != nil {
-			c.JSON(http.StatusInternalServerError, c.Error(err))
+			c.JSON(utils.InternalError(err))
 			return
 		}
 		c.JSON(http.StatusOK, coll)
