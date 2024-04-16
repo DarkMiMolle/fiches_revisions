@@ -1,11 +1,15 @@
 <script lang="ts">
     import { onMount, tick } from "svelte";
-    import type { Form } from "$lib/data";
+    import type { Form } from "$lib/index";
 
-    export let data: Form
+    export let form: Form
 
     let seeAnswer = false
     const turnCard = async () => {
+        if (userAnswer == "") {
+            // highlight input
+            return
+        }
         seeAnswer = !seeAnswer
         await tick()
     }
@@ -13,8 +17,9 @@
         front: HTMLDivElement, back: HTMLDivElement
 
     let userAnswer: string = ""
-    $: isGoodAnswer = userAnswer.toLowerCase() == data.Answer.toLowerCase()
+    $: isGoodAnswer = form.answers.map(val => val.toLowerCase()).includes(userAnswer.toLowerCase())
     $: result = isGoodAnswer ? 'Bonne réponse' : 'Mauvaise réponse'
+    
 
     onMount(() => {
         let frontHeight = front.getBoundingClientRect().height
@@ -38,13 +43,13 @@
         class:seeAnswer
     >
         <div class="front" bind:this={front}>
-            <p>{data.Question}</p>
+            <p>{form.question}</p>
             <input type="text" bind:value={userAnswer} on:click|stopPropagation={()=>{}}>
         </div>
         <div class="back" bind:this={back} class:isGoodAnswer>
             <p>{result}</p>
-            {#if !isGoodAnswer && data.Tips != undefined}
-                <p>Tips: {data.Tips}</p>
+            {#if !isGoodAnswer && form.tips != undefined}
+                <p>Tips: {form.tips}</p>
             {/if}
         </div>
     </div>
