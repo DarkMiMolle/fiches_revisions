@@ -78,14 +78,14 @@ func SingUp(c *gin.Context) {
 func Login(c *gin.Context) {
 	// get login information from body
 	var body struct {
-		Email    models.Email `json:"email" binding:"required"`
-		Password string       `json:"password" binding:"required"`
+		Email    models.Email `json:"email"`
+		Password string       `json:"password"`
 	}
-	if err := c.Bind(&body); err != nil {
+	if err := c.BindJSON(&body); err != nil {
 		c.JSON(utils.BadRequestError(err))
 		return
 	}
-
+	fmt.Printf("%+v\n", body)
 	// check if there is a match in db
 	db := utils.ExtractValues(c)
 	userCollection := db.Collection(os.Getenv(env.UserCollection))
@@ -97,10 +97,12 @@ func Login(c *gin.Context) {
 	}
 	if result.Err() != nil {
 		c.JSON(utils.InternalError(result.Err()))
+		return
 	}
 	var user models.User
 	if err := result.Decode(&user); err != nil {
 		c.JSON(utils.InternalError(err))
+		return
 	}
 	if !user.Password.Match(body.Password) {
 		c.JSON(utils.BadRequestError(fmt.Errorf("invalid password")))
