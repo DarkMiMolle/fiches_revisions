@@ -43,12 +43,12 @@ func main() {
 		}
 
 		result := db.Collection(os.Getenv(env.GroupCollection)).FindOne(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": groupName})
-		if errors.Is(result.Err(), mongo.ErrNoDocuments) {
+		if result.Err() != nil && errors.Is(result.Err(), mongo.ErrNoDocuments) {
 			c.JSON(utils.Success([]struct{}{}))
 			return
 		}
 		if result.Err() != nil {
-			c.JSON(utils.InternalError(err))
+			c.JSON(utils.InternalError(result.Err()))
 			return
 		}
 
