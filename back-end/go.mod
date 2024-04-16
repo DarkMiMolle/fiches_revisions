@@ -1,6 +1,6 @@
 module github.com/DarkMiMolle/Fiche/backend
 
-go 1.22
+go 1.21
 
 require (
 	github.com/DarkMiMolle/GTL v0.0.12
