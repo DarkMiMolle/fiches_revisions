@@ -3,6 +3,7 @@
     import type { Collection } from "$lib";
     import { Button, Dropdown, P, Radio, Search } from "flowbite-svelte";
     import { ChevronDownOutline, UserRemoveSolid } from 'flowbite-svelte-icons';
+    import { default as CollectionCard } from "./Collection.svelte";
 
     export let data: {error?: any, collections: Collection[]}
 
@@ -16,6 +17,8 @@
                             .map(collection => collection.name)
                             .filter(name => search === "" || name.toLowerCase().startsWith(search.toLowerCase()))
     $: console.log(currentCollection)
+
+    let isDropdownOpen: boolean = false
 </script>
 
 {#if hasErr}
@@ -24,8 +27,8 @@
 {:else}
 
 
-<Button>Dropdown search <ChevronDownOutline class="w-6 h-6 ms-2 text-white dark:text-white" /></Button>
-<Dropdown class="overflow-y-auto px-3 pb-3 text-sm h-44" placement="bottom-start">
+<Button>Selectionne une collection <ChevronDownOutline class="w-6 h-6 ms-2 text-white dark:text-white" /></Button>
+<Dropdown bind:open={isDropdownOpen} class="overflow-y-auto px-3 pb-3 text-sm h-44" placement="bottom-start">
     <div slot="header" class="p-3">
         <Search size="md" bind:value={search}/>
     </div>
@@ -35,13 +38,20 @@
     </li>
     {/each}
     <div slot="footer" class="flex justify-center">
-        <Button outline disabled={currentCollection === undefined} on:click={() => currentCollection = undefined}>Deselectionner</Button>
+        <Button outline disabled={currentCollection === undefined} on:click={() => {
+            currentCollection = undefined
+            setTimeout(() => isDropdownOpen=false, 500)
+        }}>Deselectionner</Button>
     </div>
     
 </Dropdown>
 {/if}
 
-
+{#if currentCollection !== undefined}
+<div class="flex justify-center mt-5">
+    <CollectionCard collection={data.collections[currentCollection]}/>
+</div>
+{/if}
 <style>
     
 </style>
