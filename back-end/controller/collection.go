@@ -4,7 +4,6 @@ import (
 	"github.com/DarkMiMolle/Fiche/backend/env"
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
-	"github.com/DarkMiMolle/GTL/array"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"os"
@@ -31,7 +30,5 @@ func ListGroups(c *gin.Context) {
 		return
 	}
 
-	c.JSON(utils.Success(array.Map(groups, func(elem models.Group) string {
-		return elem.Name
-	})))
+	c.JSON(utils.Success(groups))
 }

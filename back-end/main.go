@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/DarkMiMolle/Fiche/backend/controller"
+	"github.com/DarkMiMolle/Fiche/backend/env"
 	"github.com/DarkMiMolle/Fiche/backend/middleware"
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
@@ -34,19 +35,19 @@ func main() {
 	server.POST("/api/singup", controller.SingUp)
 	server.POST("/api/login", controller.Login)
 	server.GET("/api/collection", func(c *gin.Context) {
-		groupName, exists := c.GetQuery("groupName")
+		groupName, exists := c.GetQuery("collection")
 		if !exists {
-			c.JSON(http.StatusBadRequest, "missing query 'groupName'")
+			c.JSON(http.StatusBadRequest, "missing query 'collection'")
 			return
 		}
 
-		result, err := db.Collection("collections").Find(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": groupName})
-		if err != nil {
+		result := db.Collection(os.Getenv(env.GroupCollection)).FindOne(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": groupName})
+		if result.Err() != nil {
 			c.JSON(http.StatusInternalServerError, c.Error(err))
 			return
 		}
-		var coll []models.Group
-		if err := result.All(c, &coll); err != nil {
+		var coll models.Group
+		if err := result.Decode(&coll); err != nil {
 			c.JSON(http.StatusInternalServerError, c.Error(err))
 			return
 		}
