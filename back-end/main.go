@@ -22,7 +22,7 @@ func main() {
 
 	mongoUri := os.Getenv(env.MongodbUri)
 	fmt.Println(mongoUri)
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoUri))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoUri).SetServerAPIOptions(options.ServerAPI(options.ServerAPIVersion1)))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -48,14 +48,14 @@ func main() {
 			return
 		}
 		if result.Err() != nil {
-			fmt.Fprintf(os.Stderr, "%e\n", result.Err())
+			fmt.Fprintf(os.Stderr, "%v\n", result.Err().Error())
 			c.JSON(utils.InternalError(result.Err()))
 			return
 		}
 
 		var coll models.Group
 		if err := result.Decode(&coll); err != nil {
-			fmt.Fprintf(os.Stderr, "%e\n", result.Err())
+			fmt.Fprintf(os.Stderr, "%v\n", result.Err().Error())
 			c.JSON(utils.InternalError(err))
 			return
 		}
