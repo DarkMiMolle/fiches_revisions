@@ -65,6 +65,10 @@ func main() {
 	requiredAuth := server.Group("", middleware.JwtAuthMiddleware())
 
 	requiredAuth.GET("/api/collections", controller.ListGroups)
-	fmt.Println(os.Getenv("URL"))
-	server.Run("0.0.0.0:3030")
+	fmt.Println(os.Getenv("PORT"))
+	port := "3030"
+	if val, ok := os.LookupEnv("PORT"); ok {
+		port = val
+	}
+	server.Run("0.0.0.0:" + port)
 }

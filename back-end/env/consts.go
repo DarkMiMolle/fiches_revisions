@@ -1,6 +1,8 @@
 package env
 
 const (
+	ExposedPort = "PORT"
+
 	ApiSecret = "API_SECRET"
 
 	DbName     = "DB_NAME"
