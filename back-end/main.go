@@ -48,12 +48,14 @@ func main() {
 			return
 		}
 		if result.Err() != nil {
+			fmt.Fprintf(os.Stderr, "%e\n", result.Err())
 			c.JSON(utils.InternalError(result.Err()))
 			return
 		}
 
 		var coll models.Group
 		if err := result.Decode(&coll); err != nil {
+			fmt.Fprintf(os.Stderr, "%e\n", result.Err())
 			c.JSON(utils.InternalError(err))
 			return
 		}
