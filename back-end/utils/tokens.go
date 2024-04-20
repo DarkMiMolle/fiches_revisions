@@ -2,13 +2,14 @@ package utils
 
 import (
 	"fmt"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/DarkMiMolle/Fiche/backend/env"
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"os"
-	"strings"
-	"time"
 )
 
 type TokenInfo struct {
@@ -33,6 +34,7 @@ func GenerateJwt(user *models.User) (string, error) {
 func GetToken(c *gin.Context) (string, error) {
 	bearerToken := c.Request.Header.Get("Authorization")
 	if bearerToken == "" {
+		fmt.Println(c.Request.Header)
 		return "", fmt.Errorf("missing required Authorisation header")
 	}
 	if len(strings.Split(bearerToken, " ")) == 2 {
