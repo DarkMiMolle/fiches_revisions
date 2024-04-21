@@ -33,8 +33,8 @@ func GenerateJwt(user *models.User) (string, error) {
 
 func GetToken(c *gin.Context) (string, error) {
 	bearerToken := c.Request.Header.Get("Authorization")
+	fmt.Println(c.Request.Header)
 	if bearerToken == "" {
-		fmt.Println(c.Request.Header)
 		return "", fmt.Errorf("missing required Authorisation header")
 	}
 	if len(strings.Split(bearerToken, " ")) == 2 {
