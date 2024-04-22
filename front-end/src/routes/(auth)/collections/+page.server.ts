@@ -1,20 +1,20 @@
 import { env } from '$env/dynamic/public'
 import type { Collection } from '$lib'
+import { isRedirect } from '@sveltejs/kit'
 
 
 export async function load({cookies, parent}) {
     await parent()
     const jwt = cookies.get("jwt")!
     const endpoint = env.PUBLIC_BACKEND
-    const resp = await fetch(`${endpoint}/collections`, {
+    const resp = await fetch(`${endpoint}/api/collections`, {
         method: "GET",
         headers: {
-            Authorization: `Bearer ${jwt}` 
+            'Content-type': 'application/json',
+            Authorization: `Bearer ${jwt}`,
         }
     })
     const result = await resp.json()
-
-    console.log(result)
     if (!resp.ok) {
         return {
             error: result,

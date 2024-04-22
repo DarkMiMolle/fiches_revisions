@@ -3,7 +3,7 @@
     import type { Collection } from "$lib";
     import { Button, Dropdown, P, Radio, Search } from "flowbite-svelte";
     import { ChevronDownOutline, UserRemoveSolid } from 'flowbite-svelte-icons';
-    import { default as CollectionCard } from "./Collection.svelte";
+    import{ default as CollectionCard } from "./Collection.svelte";
 
     export let data: {error?: any, collections: Collection[]}
 
@@ -13,10 +13,10 @@
 
     let search: string = ""
 
-    $: collectionNames = data.collections
+    $: collectionNames = (data.collections ?? new Array<Collection>())
                             .map(collection => collection.name)
                             .filter(name => search === "" || name.toLowerCase().startsWith(search.toLowerCase()))
-    $: console.log(currentCollection)
+    $: console.log(currentCollection, collectionNames)
 
     let isDropdownOpen: boolean = false
 </script>

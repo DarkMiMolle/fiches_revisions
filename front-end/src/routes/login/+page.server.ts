@@ -1,3 +1,4 @@
+import { env } from '$env/dynamic/public';
 import { redirect } from '@sveltejs/kit';
 
 export async function load({parent, cookies}) {
@@ -10,7 +11,9 @@ export async function load({parent, cookies}) {
 export const actions = {
 	default: async ({ request, cookies, url }) => {
 		const data = await request.formData()
-		const resp = await fetch("http://localhost:3030/api/login", {
+		const backendUrl = env.PUBLIC_BACKEND
+		console.log(backendUrl)
+		const resp = await fetch(`${backendUrl}/api/login`, {
 			method: "POST",
 			body: JSON.stringify({
 				email: "florent.carrez@yahoo.fr",
