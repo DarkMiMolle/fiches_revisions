@@ -13,17 +13,18 @@ import (
 )
 
 type TokenInfo struct {
-	UserEmail  models.Email
+	UserPseudo string
+
 	ExpireDate time.Time
 }
 
-func GenerateJwt(user *models.User) (string, error) {
+func GenerateJwt(user *models.AuthUser) (string, error) {
 	tokenDuration := 6 * time.Hour
 
 	claims := jwt.MapClaims{
-		"authorized": true,
-		"user_email": user.Email,
-		"exp":        time.Now().Add(tokenDuration).Unix(),
+		"authorized":  true,
+		"user_pseudo": user.Pseudo,
+		"exp":         time.Now().Add(tokenDuration).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -56,7 +57,7 @@ func ExtractTokenInfo(tokenStr string) (TokenInfo, error) {
 	claims, ok := token.Claims.(jwt.MapClaims)
 	info := TokenInfo{}
 	if ok && token.Valid {
-		info.UserEmail = models.Email(claims["user_email"].(string))
+		info.UserPseudo = claims["user_pseudo"].(string)
 		fmt.Printf("%+v (exp: %T)\n", claims, claims["exp"])
 		info.ExpireDate = time.Unix(int64(claims["exp"].(float64)), 0)
 		return info, nil
