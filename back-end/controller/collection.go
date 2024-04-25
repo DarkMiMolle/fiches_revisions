@@ -5,7 +5,6 @@ import (
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"os"
 )
 
@@ -17,9 +16,7 @@ func ListGroups(c *gin.Context) {
 	}
 	db := utils.ExtractValues(c)
 	collection := db.Collection(os.Getenv(env.GroupCollection))
-	result, err := collection.Find(c, bson.M{
-		"user": token.UserEmail,
-	})
+	result, err := collection.Find(c, models.User{Pseudo: token.UserPseudo}.MongoIDFilter())
 	if err != nil {
 		c.JSON(utils.BadRequestError(err))
 		return

@@ -2,74 +2,69 @@ package controller
 
 import (
 	"context"
-	"errors"
+	gerrors "errors"
 	"fmt"
 	"github.com/DarkMiMolle/Fiche/backend/env"
+	"github.com/DarkMiMolle/Fiche/backend/errors"
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
 	"github.com/DarkMiMolle/GTL/optional"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 	"os"
+	"time"
 )
 
-func SingUp(c *gin.Context) {
+func SignUp(c *gin.Context) {
 	// get user from context
 	var body struct {
-		Email    models.Email           `json:"email"`
+		Pseudo   string                 `json:"pseudo"`
 		Password string                 `json:"password"`
 		Name     optional.Value[string] `json:"name"`
 	}
 	if err := c.Bind(&body); err != nil {
-		c.JSON(utils.BadRequestError(err))
-		return
+		panic(errors.HttpBadRequest{err})
 	}
-	if !body.Email.IsValid() {
-		c.JSON(utils.BadRequestError(fmt.Errorf("email '%v' is not valid", body.Email)))
-		return
-	}
+
 	if len(body.Password) < 5 {
-		c.JSON(utils.BadRequestError(fmt.Errorf("invalid password, requires at least 5 character")))
+		panic(errors.HttpBadRequest{fmt.Errorf("invalid password, requires at least 5 character")})
 		return
+	}
+
+	user := models.User{
+		Pseudo: body.Pseudo,
+		Name:   body.Name.ValueOr(fmt.Sprintf("Unnamed_%v", time.Now().Unix())),
 	}
 
 	// check if user email exists in db
 	db := utils.ExtractValues(c)
 	collection := db.Collection(os.Getenv(env.UserCollection))
-	result := collection.FindOne(context.Background(), bson.M{
-		"email": body.Email,
-	})
+	result := collection.FindOne(context.Background(), user.MongoIDFilter())
 	if result.Err() == nil {
-		c.JSON(utils.BadRequestError(fmt.Errorf("user with same email (%v) already exists", body.Email)))
-		return
+		panic(errors.HttpBadRequest{fmt.Errorf("user with same pseudo (%v) already exists", user.Pseudo)})
 	}
-	if !errors.Is(result.Err(), mongo.ErrNoDocuments) {
-		c.JSON(utils.InternalError(result.Err()))
-		return
+	if !gerrors.Is(result.Err(), mongo.ErrNoDocuments) {
+		panic(errors.HttpInternalServer{result.Err()})
 	}
 
 	// hash password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
-	if errors.Is(err, bcrypt.ErrPasswordTooLong) {
-		c.JSON(utils.BadRequestError(err))
-		return
+	if gerrors.Is(err, bcrypt.ErrPasswordTooLong) {
+		panic(errors.HttpBadRequest{err})
 	}
 	if err != nil {
-		c.JSON(utils.InternalError(err))
+		panic(errors.HttpInternalServer{err})
 	}
 
 	// register the user
-	user := models.User{
-		Email:    body.Email,
-		Name:     body.Name.ValueOr(""),
+	newUser := models.AuthUser{
+		User:     user,
 		Password: models.Password(hashPassword),
 	}
-	_, err = collection.InsertOne(context.Background(), user)
+	_, err = collection.InsertOne(context.Background(), newUser)
 	if err != nil {
-		c.JSON(utils.InternalError(err))
-		return
+		panic(errors.HttpInternalServer{err})
 	}
 
 	c.JSON(utils.Success(user))
@@ -78,8 +73,8 @@ func SingUp(c *gin.Context) {
 func Login(c *gin.Context) {
 	// get login information from body
 	var body struct {
-		Email    models.Email `json:"email"`
-		Password string       `json:"password"`
+		Pseudo   string `json:"pseudo"`
+		Password string `json:"password"`
 	}
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(utils.BadRequestError(err))
@@ -90,30 +85,25 @@ func Login(c *gin.Context) {
 	db := utils.ExtractValues(c)
 	userCollection := db.Collection(os.Getenv(env.UserCollection))
 
-	result := userCollection.FindOne(c, bson.M{"email": body.Email})
-	if result.Err() != nil && errors.Is(result.Err(), mongo.ErrNoDocuments) {
-		c.JSON(utils.BadRequestError(result.Err()))
-		return
+	result := userCollection.FindOne(c, models.User{Pseudo: body.Pseudo}.MongoIDFilter())
+	if result.Err() != nil && gerrors.Is(result.Err(), mongo.ErrNoDocuments) {
+		panic(errors.HttpBadRequest{result.Err()})
 	}
 	if result.Err() != nil {
-		c.JSON(utils.InternalError(result.Err()))
-		return
+		panic(errors.HttpInternalServer{result.Err()})
 	}
-	var user models.User
+	var user models.AuthUser
 	if err := result.Decode(&user); err != nil {
-		c.JSON(utils.InternalError(err))
-		return
+		panic(errors.HttpInternalServer{err})
 	}
 	if !user.Password.Match(body.Password) {
-		c.JSON(utils.BadRequestError(fmt.Errorf("invalid password")))
-		return
+		panic(errors.HttpBadRequest{fmt.Errorf("invalid password")})
 	}
 
 	// create and return token
 	token, err := utils.GenerateJwt(&user)
 	if err != nil {
-		c.JSON(utils.InternalError(err))
-		return
+		panic(errors.HttpInternalServer{err})
 	}
 	c.JSON(utils.Success(gin.H{"jwt": token}))
 }
