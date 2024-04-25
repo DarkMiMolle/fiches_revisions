@@ -4,7 +4,9 @@ go 1.21
 
 require (
 	github.com/DarkMiMolle/GTL v0.0.12
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-stack/stack v1.8.1
 	go.mongodb.org/mongo-driver v1.14.0
 	golang.org/x/crypto v0.17.0
 )
@@ -12,7 +14,6 @@ require (
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"errors"
+	gerrors "errors"
 	"fmt"
 	"github.com/DarkMiMolle/Fiche/backend/controller"
 	"github.com/DarkMiMolle/Fiche/backend/env"
+	"github.com/DarkMiMolle/Fiche/backend/errors"
 	"github.com/DarkMiMolle/Fiche/backend/middleware"
 	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
@@ -31,19 +32,19 @@ func main() {
 	databaseName := os.Getenv(env.DbName)
 	db := client.Database(databaseName)
 	server := gin.Default()
-	server.Use(utils.SetupContextMiddleware(db))
+	server.Use(utils.SetupContextMiddleware(db), errors.Handle)
 
-	server.POST("/api/singup", controller.SingUp)
+	server.POST("/api/signup", controller.SignUp)
 	server.POST("/api/login", controller.Login)
+	server.POST("/api/refresh")
 	server.GET("/api/collection", func(c *gin.Context) {
 		groupName, exists := c.GetQuery("collection")
 		if !exists {
-			c.JSON(http.StatusBadRequest, "missing query 'collection'")
-			return
+			panic(errors.HttpBadRequest{fmt.Errorf("missing 'collection' query parameter")})
 		}
 
 		result := db.Collection(os.Getenv(env.GroupCollection)).FindOne(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": groupName})
-		if result.Err() != nil && errors.Is(result.Err(), mongo.ErrNoDocuments) {
+		if result.Err() != nil && gerrors.Is(result.Err(), mongo.ErrNoDocuments) {
 			c.JSON(utils.Success([]struct{}{}))
 			return
 		}
@@ -65,9 +66,8 @@ func main() {
 	requiredAuth := server.Group("", middleware.JwtAuthMiddleware())
 
 	requiredAuth.GET("/api/collections", controller.ListGroups)
-	fmt.Println(os.Getenv("PORT"))
 	port := "3030"
-	if val, ok := os.LookupEnv("PORT"); ok {
+	if val, ok := os.LookupEnv(env.ExposedPort); ok {
 		port = val
 	}
 	server.Run("0.0.0.0:" + port)
