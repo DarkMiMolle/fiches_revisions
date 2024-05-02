@@ -1,6 +1,5 @@
 import { env } from '$env/dynamic/public'
 import type { Collection } from '$lib'
-import { isRedirect } from '@sveltejs/kit'
 
 
 export async function load({cookies, parent}) {
@@ -21,7 +20,6 @@ export async function load({cookies, parent}) {
             collection: []
         }
     }
-
     return {
         collections: result as Collection[]
     }

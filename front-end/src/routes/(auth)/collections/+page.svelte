@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { invalidateAll } from "$app/navigation";
+    import { goto, invalidateAll } from "$app/navigation";
     import type { Collection } from "$lib";
     import { Button, Dropdown, P, Radio, Search } from "flowbite-svelte";
     import { ChevronDownOutline, UserRemoveSolid } from 'flowbite-svelte-icons';
@@ -23,7 +23,7 @@
 
 {#if hasErr}
     <P>{ JSON.stringify(data.error)}</P>
-    <Button on:click={() => invalidateAll() }>Recharge la page</Button>
+    <Button on:click={() => { invalidateAll(); goto("/") } }>Recharge la page</Button>
 {:else}
 
 
