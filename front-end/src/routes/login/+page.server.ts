@@ -1,5 +1,4 @@
 import { env } from '$env/dynamic/public';
-import type { ServerError } from '$lib';
 import { fail, redirect } from '@sveltejs/kit';
 
 const backendUrl = env.PUBLIC_BACKEND
