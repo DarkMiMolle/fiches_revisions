@@ -2,8 +2,9 @@ package errors
 
 import (
 	"fmt"
-	"github.com/DarkMiMolle/Fiche/backend/models"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"os"
 	"strings"
 )
 
@@ -14,11 +15,17 @@ func Handle(c *gin.Context) {
 			return
 		}
 		switch rec := rec.(type) {
+		case Http:
+			c.JSON(rec.Status, rec)
+		case Error:
+			fmt.Fprintf(os.Stderr, "ERROR (%v): %v at: %v", rec.Code, rec.Message, strings.ReplaceAll(rec.GetStackString(), "\n", "\n\t"))
+			c.JSON(http.StatusInternalServerError, Http{
+				AppCode: rec.Code,
+				Status:  http.StatusInternalServerError,
+				Message: rec.Message,
+			})
 		case httpError:
-			c.JSON(rec.Status(), gin.H{"code": rec.Status(), "message": rec.Error()})
-		case models.Error:
-			fmt.Printf("ERROR (%v): %v\n\tat: %v\n", rec.Code, rec.Message, strings.Join(rec.GetStackString(), "|\n"))
-			c.JSON(int(rec.Code), rec)
+			c.JSON(rec.Status(), Http{Status: rec.Status(), Message: rec.Error()})
 		default:
 			panic(rec)
 		}
