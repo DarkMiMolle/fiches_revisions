@@ -77,8 +77,7 @@ func Login(c *gin.Context) {
 		Password string `json:"password"`
 	}
 	if err := c.BindJSON(&body); err != nil {
-		c.JSON(utils.BadRequestError(err))
-		return
+		panic(errors.BadRequest(err))
 	}
 	fmt.Printf("%+v\n", body)
 	// check if there is a match in db

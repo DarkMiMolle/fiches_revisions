@@ -50,15 +50,13 @@ func main() {
 		}
 		if result.Err() != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", result.Err().Error())
-			c.JSON(utils.InternalError(result.Err()))
-			return
+			panic(errors.Internal(result.Err()))
 		}
 
 		var coll models.Group
 		if err := result.Decode(&coll); err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", result.Err().Error())
-			c.JSON(utils.InternalError(err))
-			return
+			panic(errors.Internal(err))
 		}
 		c.JSON(http.StatusOK, coll)
 	})
