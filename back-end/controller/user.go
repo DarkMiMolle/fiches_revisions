@@ -24,11 +24,11 @@ func SignUp(c *gin.Context) {
 		Name     optional.Value[string] `json:"name"`
 	}
 	if err := c.Bind(&body); err != nil {
-		panic(errors.HttpBadRequest{err})
+		panic(errors.BadRequest(err))
 	}
 
 	if len(body.Password) < 5 {
-		panic(errors.HttpBadRequest{fmt.Errorf("invalid password, requires at least 5 character")})
+		panic(errors.NewBadRequest("invalid password, requires at least 5 character"))
 		return
 	}
 
@@ -42,19 +42,19 @@ func SignUp(c *gin.Context) {
 	collection := db.Collection(os.Getenv(env.UserCollection))
 	result := collection.FindOne(context.Background(), user.MongoIDFilter())
 	if result.Err() == nil {
-		panic(errors.HttpBadRequest{fmt.Errorf("user with same pseudo (%v) already exists", user.Pseudo)})
+		panic(errors.NewBadRequest("user with same pseudo (%v) already exists", user.Pseudo))
 	}
 	if !gerrors.Is(result.Err(), mongo.ErrNoDocuments) {
-		panic(errors.HttpInternalServer{result.Err()})
+		panic(errors.Internal(result.Err()))
 	}
 
 	// hash password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
 	if gerrors.Is(err, bcrypt.ErrPasswordTooLong) {
-		panic(errors.HttpBadRequest{err})
+		panic(errors.BadRequest(err))
 	}
 	if err != nil {
-		panic(errors.HttpInternalServer{err})
+		panic(errors.Internal(err))
 	}
 
 	// register the user
@@ -64,7 +64,7 @@ func SignUp(c *gin.Context) {
 	}
 	_, err = collection.InsertOne(context.Background(), newUser)
 	if err != nil {
-		panic(errors.HttpInternalServer{err})
+		panic(errors.Internal(err))
 	}
 
 	c.JSON(utils.Success(user))
@@ -86,23 +86,23 @@ func Login(c *gin.Context) {
 
 	result := userCollection.FindOne(c, models.User{Pseudo: body.Pseudo}.MongoIDFilter())
 	if result.Err() != nil && gerrors.Is(result.Err(), mongo.ErrNoDocuments) {
-		panic(errors.HttpBadRequest{result.Err()})
+		panic(errors.BadRequest(result.Err()))
 	}
 	if result.Err() != nil {
-		panic(errors.HttpInternalServer{result.Err()})
+		panic(errors.Internal(result.Err()))
 	}
 	var user models.AuthUser
 	if err := result.Decode(&user); err != nil {
-		panic(errors.HttpInternalServer{err})
+		panic(errors.Internal(err))
 	}
 	if !user.Password.Match(body.Password) {
-		panic(errors.HttpBadRequest{fmt.Errorf("invalid password")})
+		panic(errors.NewBadRequest("invalid password"))
 	}
 
 	// create and return token
 	token, err := utils.GenerateJwt(&user)
 	if err != nil {
-		panic(errors.HttpInternalServer{err})
+		panic(errors.Internal(err))
 	}
 	c.JSON(utils.Success(gin.H{"jwt": token}))
 }

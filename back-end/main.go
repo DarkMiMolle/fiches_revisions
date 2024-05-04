@@ -40,7 +40,7 @@ func main() {
 	server.GET("/api/collection", func(c *gin.Context) {
 		groupName, exists := c.GetQuery("collection")
 		if !exists {
-			panic(errors.HttpBadRequest{fmt.Errorf("missing 'collection' query parameter")})
+			panic(errors.NewBadRequest("missing 'collection' query parameter"))
 		}
 
 		result := db.Collection(os.Getenv(env.GroupCollection)).FindOne(c, bson.M{"user": "florent.carrez@yahoo.fr", "name": groupName})
