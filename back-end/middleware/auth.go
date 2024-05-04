@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/DarkMiMolle/Fiche/backend/errors"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -13,14 +12,14 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		defer errors.Handle(c)
 		token, err := utils.GetToken(c)
 		if err != nil {
-			panic(errors.HttpUnauthenticatedError{err})
+			panic(errors.UnauthenticatedWith(err))
 		}
 		tokenInfo, err := utils.ExtractTokenInfo(token)
 		if err != nil {
-			panic(errors.HttpUnauthenticatedError{fmt.Errorf("unauthorized: %v", err.Error())})
+			panic(errors.Unauthenticated("unauthorized: %v", err.Error()))
 		}
 		if tokenInfo.ExpireDate.Before(time.Now()) {
-			panic(errors.Unauthenticated())
+			panic(errors.Unauthenticated("le token d'authentication a expiré"))
 		}
 		utils.AddToken(c, tokenInfo)
 		c.Next()

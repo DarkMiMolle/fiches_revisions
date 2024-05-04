@@ -58,11 +58,18 @@ func InvalidPseudo() Http {
 	}
 }
 
-func Unauthenticated() Http {
+func Unauthenticated(msg string, v ...any) Http {
+	if msg == "" {
+		msg = "le token d'authantification est n'est pas valide (ou manquant)"
+	}
+	return UnauthenticatedWith(fmt.Errorf(msg, v...))
+}
+
+func UnauthenticatedWith(err error) Http {
 	return Http{
 		AppCode: unauthenticated,
 		Status:  http.StatusUnauthorized,
-		Message: "le token d'authentification n'est pas valide (ou manquant)",
+		Message: err.Error(),
 	}
 }
 
@@ -79,13 +86,3 @@ type httpError interface {
 	Status() int
 	httpError()
 }
-
-type HttpUnauthenticatedError struct {
-	ErrorValue
-}
-
-func (HttpUnauthenticatedError) Status() int {
-	return http.StatusUnauthorized
-}
-
-func (HttpUnauthenticatedError) httpError() {}
