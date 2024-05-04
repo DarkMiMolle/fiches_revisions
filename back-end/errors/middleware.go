@@ -17,7 +17,7 @@ func Handle(c *gin.Context) {
 		switch rec := rec.(type) {
 		case Http:
 			c.JSON(rec.Status, rec)
-		case Error:
+		case App:
 			fmt.Fprintf(os.Stderr, "ERROR (%v): %v at: %v", rec.Code, rec.Message, strings.ReplaceAll(rec.GetStackString(), "\n", "\n\t"))
 			c.JSON(http.StatusInternalServerError, Http{
 				AppCode: rec.Code,

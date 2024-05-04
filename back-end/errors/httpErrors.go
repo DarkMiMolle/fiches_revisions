@@ -6,7 +6,7 @@ import (
 )
 
 func appCodeFrom(err error, or ...int) int {
-	if appErr, isAppError := err.(Error); isAppError {
+	if appErr, isAppError := err.(App); isAppError {
 		return appErr.Code
 	}
 	if len(or) > 0 {

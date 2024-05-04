@@ -36,7 +36,7 @@ func main() {
 
 	server.POST("/api/signup", controller.SignUp)
 	server.POST("/api/login", controller.Login)
-	server.POST("/api/refresh")
+	server.POST("/api/refresh", controller.TODO)
 	server.GET("/api/collection", func(c *gin.Context) {
 		groupName, exists := c.GetQuery("collection")
 		if !exists {
