@@ -12,14 +12,14 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		defer errors.Handle(c)
 		token, err := utils.GetToken(c)
 		if err != nil {
-			panic(errors.UnauthenticatedWith(err))
+			panic(errors.Unauthorised(err))
 		}
 		tokenInfo, err := utils.ExtractTokenInfo(token)
 		if err != nil {
-			panic(errors.Unauthenticated("unauthorized: %v", err.Error()))
+			panic(errors.Unauthorised(err))
 		}
 		if tokenInfo.ExpireDate.Before(time.Now()) {
-			panic(errors.Unauthenticated("le token d'authentication a expiré"))
+			panic(errors.TokenExpired())
 		}
 		utils.AddToken(c, tokenInfo)
 		c.Next()

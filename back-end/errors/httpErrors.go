@@ -5,27 +5,21 @@ import (
 	"net/http"
 )
 
-type ErrorValue = error
+func appCodeFrom(err error, or ...int) int {
+	if appErr, isAppError := err.(Error); isAppError {
+		return appErr.Code
+	}
+	if len(or) > 0 {
+		return or[0]
+	}
+	return 0
+}
 
 type Http struct {
 	AppCode int    `json:"appCode"`
 	Status  int    `json:"status"`
 	Message string `json:"message"`
 }
-
-/*
-type Http = struct {
-	@[json.Fields: json.LowerSnakeCaseFields]
-	AppCode, Status int
-	Message string
-} + extension {
-	const operator (Self & another Self) Self {
-		self.AppCode |= another.AppCode
-		self.Message += "; \{another.Message}"
-		return self
-	}
-}
-*/
 
 func (h Http) And(another Http) Http {
 	h.AppCode = h.AppCode | another.AppCode
@@ -46,8 +40,11 @@ func NewBadRequest(format string, v ...any) Http {
 }
 
 const (
+	unauthorised = (0b01 << iota) * 100
+	tokenExpired
+)
+const (
 	invalidPseudo = (0b01 << iota) * 1000
-	unauthenticated
 )
 
 func InvalidPseudo() Http {
@@ -58,25 +55,26 @@ func InvalidPseudo() Http {
 	}
 }
 
-func Unauthenticated(msg string, v ...any) Http {
-	if msg == "" {
-		msg = "le token d'authantification est n'est pas valide (ou manquant)"
+func TokenExpired() Http {
+	return Http{
+		AppCode: tokenExpired,
+		Status:  http.StatusUnauthorized,
+		Message: "le token d'authentication a expiré",
 	}
-	return UnauthenticatedWith(fmt.Errorf(msg, v...))
 }
 
-func UnauthenticatedWith(err error) Http {
+func Unauthorised(reason error) Http {
 	return Http{
-		AppCode: unauthenticated,
+		AppCode: appCodeFrom(reason, unauthorised),
 		Status:  http.StatusUnauthorized,
-		Message: err.Error(),
+		Message: fmt.Sprintf("unauthorised: %v", reason.Error()),
 	}
 }
 
 func Internal(err error) Http {
 	return Http{
 		Status:  http.StatusInternalServerError,
-		AppCode: 0,
+		AppCode: appCodeFrom(err),
 		Message: err.Error(),
 	}
 }
