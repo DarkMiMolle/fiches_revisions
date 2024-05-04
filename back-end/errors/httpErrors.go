@@ -80,9 +80,3 @@ func Internal(err error) Http {
 		Message: err.Error(),
 	}
 }
-
-type httpError interface {
-	error
-	Status() int
-	httpError()
-}

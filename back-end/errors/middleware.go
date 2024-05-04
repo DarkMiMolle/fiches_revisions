@@ -24,8 +24,6 @@ func Handle(c *gin.Context) {
 				Status:  http.StatusInternalServerError,
 				Message: rec.Message,
 			})
-		case httpError:
-			c.JSON(rec.Status(), Http{Status: rec.Status(), Message: rec.Error()})
 		default:
 			panic(rec)
 		}
