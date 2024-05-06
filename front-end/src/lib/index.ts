@@ -13,3 +13,8 @@ export type Collection = {
     forms: Form[]
 }
 
+export type ServerError = {
+    status: number
+    code: number
+    message: string
+}
