@@ -5,7 +5,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-const contextDB = "DB"
+const ContextDB = "DB"
 
 type SharedValue struct {
 	Db *mongo.Database
@@ -17,12 +17,6 @@ func ExtractSharedValue(c *gin.Context) (val SharedValue) {
 }
 
 func ExtractValues(c *gin.Context) (db *mongo.Database) {
-	db = c.MustGet(contextDB).(*mongo.Database)
+	db = c.MustGet(ContextDB).(*mongo.Database)
 	return
-}
-
-func SetupContextMiddleware(db *mongo.Database) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set(contextDB, db)
-	}
 }

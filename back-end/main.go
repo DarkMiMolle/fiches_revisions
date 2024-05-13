@@ -4,6 +4,9 @@ import (
 	"context"
 	gerrors "errors"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/DarkMiMolle/Fiche/backend/controller"
 	"github.com/DarkMiMolle/Fiche/backend/env"
 	"github.com/DarkMiMolle/Fiche/backend/errors"
@@ -14,8 +17,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"net/http"
-	"os"
 )
 
 func main() {
@@ -32,7 +33,7 @@ func main() {
 	databaseName := os.Getenv(env.DbName)
 	db := client.Database(databaseName)
 	server := gin.Default()
-	server.Use(utils.SetupContextMiddleware(db), errors.Handle)
+	server.Use(middleware.SetupContext(db), middleware.HandleError())
 
 	server.POST("/api/signup", controller.SignUp)
 	server.POST("/api/login", controller.Login)
@@ -61,7 +62,7 @@ func main() {
 		c.JSON(http.StatusOK, coll)
 	})
 
-	requiredAuth := server.Group("", middleware.JwtAuthMiddleware())
+	requiredAuth := server.Group("", middleware.JwtAuth())
 
 	requiredAuth.GET("/api/collections", controller.ListGroups)
 	port := "3030"

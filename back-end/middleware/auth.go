@@ -1,15 +1,16 @@
 package middleware
 
 import (
+	"time"
+
 	"github.com/DarkMiMolle/Fiche/backend/errors"
 	"github.com/DarkMiMolle/Fiche/backend/utils"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
-func JwtAuthMiddleware() gin.HandlerFunc {
+func JwtAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		defer errors.Handle(c)
+		defer errors.Recover(c)
 		token, err := utils.GetToken(c)
 		if err != nil {
 			panic(errors.Unauthorised(err))
