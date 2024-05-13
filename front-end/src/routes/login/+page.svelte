@@ -44,6 +44,7 @@
 
 <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 <form bind:this={htmlForm} method="POST" action={`?/${signup ? "signup" : "login"}`} on:submit={() => {
+    showPwd = false
     serverWorking = true
     formResult = undefined
 }} on:keypress|stopPropagation={({key}) => {
