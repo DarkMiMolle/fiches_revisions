@@ -1,0 +1,21 @@
+[
+    {
+        "name": "Japonnais", 
+        "forms": [
+            {
+                "question": "Signification de 耳 ?",
+                "answers": [
+                    "oreil", "oreille", "oreils", "oreilles"
+                ]
+            },
+            {
+                "question": "Signification de 目 ?",
+                "answers": ["oeil", "yeux"]
+            },
+            {
+                "question":"Signification de 口 ?",
+                "answers": ["bouche", "bouches"]
+            }
+        ]
+    }
+]

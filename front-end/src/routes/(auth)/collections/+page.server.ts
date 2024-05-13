@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/public'
 import type { Collection } from '$lib'
+import { CollectionsTest } from '$lib/test.js'
 
 
 export async function load({cookies, parent}) {
@@ -13,7 +14,10 @@ export async function load({cookies, parent}) {
             Authorization: `Bearer ${jwt}`,
         }
     })
+    console.log({resp})
     const result = await resp.json()
+    console.log({"valid resp": resp.ok, result})
+    return {collections: CollectionsTest}
     if (!resp.ok) {
         return {
             error: result,
