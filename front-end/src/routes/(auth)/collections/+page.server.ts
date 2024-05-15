@@ -1,30 +1,43 @@
 import { env } from '$env/dynamic/public'
-import type { Collection } from '$lib'
+import type { Collection, ServerError } from '$lib'
+import { HttpCode } from '$lib/statusCode.js'
 import { CollectionsTest } from '$lib/test.js'
+import { redirect } from '@sveltejs/kit'
 
 
-export async function load({cookies, parent}) {
+export async function load({cookies, parent, url}) {
     await parent()
     const jwt = cookies.get("jwt")!
     const endpoint = env.PUBLIC_BACKEND
-    const resp = await fetch(`${endpoint}/api/collections`, {
+
+    const fetchResp = fetch(`${endpoint}/api/collections`, {
         method: "GET",
         headers: {
             'Content-type': 'application/json',
             Authorization: `Bearer ${jwt}`,
         }
     })
-    console.log({resp})
-    const result = await resp.json()
-    console.log({"valid resp": resp.ok, result})
-    return {collections: CollectionsTest}
-    if (!resp.ok) {
-        return {
-            error: result,
-            collection: []
-        }
-    }
+
     return {
-        collections: result as Collection[]
+        done: new Promise<void>((resolver) => {
+            fetchResp.then(() => resolver())
+        }),
+        ...await (async () => {
+            const resp = await fetchResp
+            const result = await resp.json()
+            if (!resp.ok) {
+                if ((result as ServerError).status === HttpCode.UNAUTHORIZED) {
+                    cookies.delete("jwt", {path: '/'})
+                    throw redirect(HttpCode.TEMPORARY_REDIRECT, `/login?redirectTo=${url.pathname}`)
+                }
+                return {
+                    error: result,
+                    collections: [] as Collection[]
+                }
+            }
+            return {
+                collections: CollectionsTest
+            }
+        })()
     }
 }
