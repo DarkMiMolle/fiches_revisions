@@ -21,33 +21,24 @@ async function testFail() {
 }
 
 export const actions = {
-	login: async ({ request, cookies, url }) => {
+	login: async ({ request, cookies, url}) => {
 		// return await testFail()
 		const data = await request.formData()
 		const pseudo = data.get("pseudo") as string, password = data.get("password") as string
 		const body = {pseudo, password}
-		// const errors = []
-
-		// if (!/^([a-zA-Z]+[a-zA-Z0-9_-]*)$/.test(pseudo) || pseudo.length < 6) {
-		// 	errors.push({pseudo: `${pseudo} n'est pas valide; un pseudo doit commencer par une lettre, doit avoir au moins 6 caractère parmis: des lettres, des chiffres, '-' ou '_'`})
-		// }
-
-		// if (password.length < 7) {
-		// 	errors.push({password: "un mot de passe doit avoir au moins 7 caractères"})
-		// }
 		
-		console.log(backendUrl)
 		const resp = await fetch(`${backendUrl}/api/login`, {
 			method: "POST",
-			body: JSON.stringify(body)
+			body: JSON.stringify(body),
 		})
 		const result = await resp.json()
-		console.log(result)
+
+		console.log({login: result})
 		if (!resp.ok) {
 			return fail(resp.status, result)
 		}
 		cookies.set('jwt', result.jwt, { path: '/' });
-		return redirect(303, url.searchParams.get('redirectTo') ?? '/');
+		return redirect(303, data.get("redirection") as string|undefined ?? '/');
 	},
 
 	signup: async ({request, cookies, url}) => {
@@ -62,7 +53,6 @@ export const actions = {
 			body: JSON.stringify(body)
 		})
 		const result = await resp.json()
-		console.log(result)
 		if (!resp.ok) {
 			return fail(resp.status, result)
 		}

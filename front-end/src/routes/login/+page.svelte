@@ -1,8 +1,10 @@
 <script lang="ts">
+    import { page } from '$app/stores'
     import type { ServerError } from '$lib'
     import { Button, ButtonGroup, Input, InputAddon, Label, AccordionItem, Accordion, Radio, Helper, P, Spinner, Tooltip } from 'flowbite-svelte'
     import { UserCircleSolid, LockSolid, EnvelopeSolid, EyeOutline, EyeSlashOutline, UserSolid } from 'flowbite-svelte-icons'
 
+    $: console.log("login.page", $page.url.searchParams.get("redirectTo"))
     let notifEnable = String(false)
     $: notification = notifEnable == String(true)
 
@@ -16,7 +18,6 @@
 
     $: validPseudo = regexTestPseudo && pseudo.length >= 6
 
-    $: console.log(validPseudo)
 
     let signup = false
 
@@ -29,15 +30,15 @@
     let serverWorking = false
 
     $: {
-        console.log(formResult)
         if (formResult != undefined) {
+            console.log("login.page", formResult)
             serverWorking = false
         }
     }
 </script>
 
 {#if serverWorking}
-<div class="dark:bg-gray-800 flex justify-center items-center absolute opacity-85 w-screen h-screen" style="z-index: 10000000">
+<div class="dark:bg-gray-800 flex justify-center items-center absolute opacity-85 w-dvw h-dvh m-0 p-0" style="z-index: 10000000">
     <Spinner size=10/>
 </div>
 {/if}
@@ -51,6 +52,7 @@
     if (key != "Enter") return
     htmlForm.submit()
 }}>
+    <input type="text" name="redirection" style="display: none" value={$page.url.searchParams.get("redirectTo")}>
     <Label for="pseudo-login" class="block mb-2 mt-4">Pseudo <span class="text-primary-600">*</span></Label>
     <ButtonGroup class="w-full">
         <InputAddon >
