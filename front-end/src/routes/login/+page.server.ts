@@ -33,12 +33,11 @@ export const actions = {
 		})
 		const result = await resp.json()
 
-		console.log({'login.server': result})
+		console.log('login.server', {result})
 		if (!resp.ok) {
 			return fail(resp.status, result)
 		}
 		cookies.set('jwt', result.jwt, { path: '/' });
-		console.log({'login.server': cookies})
 		return redirect(303, data.get("redirection") as string|undefined ?? '/');
 	},
 

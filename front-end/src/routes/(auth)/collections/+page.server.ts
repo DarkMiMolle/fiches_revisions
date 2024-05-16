@@ -27,6 +27,7 @@ export async function load({cookies, parent, url}) {
             const result = await resp.json()
             if (!resp.ok) {
                 if ((result as ServerError).status === HttpCode.UNAUTHORIZED) {
+                    console.log("collection.server", {result})
                     cookies.delete("jwt", {path: '/'})
                     throw redirect(HttpCode.TEMPORARY_REDIRECT, `/login?redirectTo=${url.pathname}`)
                 }
