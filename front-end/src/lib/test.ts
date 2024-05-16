@@ -3,4 +3,4 @@ import collections from "./test_collections.json"
 
 export const CollectionsTest: Collection[] = collections
 
-console.log(collections)
+console.log("test", collections)

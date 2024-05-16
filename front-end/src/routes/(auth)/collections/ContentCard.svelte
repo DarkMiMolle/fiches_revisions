@@ -20,7 +20,7 @@
             </div>
                 
         </div>
-        <div class="back p-4 sm:p-6">
+        <div class="back p-4 sm:p-6" >
             <Label>Réponses:</Label>
             <div class="flex flex-col justify-between">
                 {#each fiche.answers as aswer}
@@ -70,6 +70,7 @@
     .back {
         position: absolute;
         width: 100%;
+        height: 100%;
         transform: rotateY(180deg);
     }
 </style>
