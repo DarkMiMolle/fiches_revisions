@@ -5,6 +5,8 @@
     import { ChevronDownOutline, UserRemoveSolid } from 'flowbite-svelte-icons';
     import{ default as CollectionCard } from "./Collection.svelte";
 
+    const __filename = "collection.page"
+
     export let data: {error?: any, collections: Collection[], done: Promise<void>}
 
     let hasErr = data.error != undefined
@@ -16,7 +18,6 @@
     $: collectionNames = (data.collections ?? new Array<Collection>())
                             .map(collection => collection.name)
                             .filter(name => search === "" || name.toLowerCase().startsWith(search.toLowerCase()))
-    $: console.log("collection.page", {currentCollection, collectionNames})
 
     let isDropdownOpen: boolean = false
 </script>

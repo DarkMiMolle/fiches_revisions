@@ -4,7 +4,8 @@
     import { Button, ButtonGroup, Input, InputAddon, Label, AccordionItem, Accordion, Radio, Helper, P, Spinner, Tooltip } from 'flowbite-svelte'
     import { UserCircleSolid, LockSolid, EnvelopeSolid, EyeOutline, EyeSlashOutline, UserSolid } from 'flowbite-svelte-icons'
 
-    $: console.log("login.page", $page.url.searchParams.get("redirectTo"))
+    const __filename = "login.page"
+
     let notifEnable = String(false)
     $: notification = notifEnable == String(true)
 
@@ -31,7 +32,6 @@
 
     $: {
         if (formResult != undefined) {
-            console.log("login.page", formResult)
             serverWorking = false
         }
     }

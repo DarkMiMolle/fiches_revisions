@@ -3,6 +3,7 @@ import { Sleep, type ServerError } from '$lib'
 import { fail, redirect } from '@sveltejs/kit';
 
 const backendUrl = env.PUBLIC_BACKEND
+const __filename = 'login.server'
 
 export async function load({parent, cookies}) {
 	await parent()
@@ -21,7 +22,7 @@ async function testFail() {
 }
 
 export const actions = {
-	login: async ({ request, cookies, url}) => {
+	login: async ({ request, cookies}) => {
 		// return await testFail()
 		const data = await request.formData()
 		const pseudo = data.get("pseudo") as string, password = data.get("password") as string
@@ -33,7 +34,7 @@ export const actions = {
 		})
 		const result = await resp.json()
 
-		console.log('login.server', {result})
+		console.log(__filename, {result})
 		if (!resp.ok) {
 			return fail(resp.status, result)
 		}
@@ -41,7 +42,7 @@ export const actions = {
 		return redirect(303, data.get("redirection") as string|undefined ?? '/');
 	},
 
-	signup: async ({request, cookies, url}) => {
+	signup: async ({request, cookies}) => {
 		return testFail()
 		const data = await request.formData()
 		const pseudo = data.get("pseudo") as string, password = data.get("password") as string,
@@ -57,7 +58,6 @@ export const actions = {
 			return fail(resp.status, result)
 		}
 		cookies.set("jwt", result.jwt, {path: "/"})
-		console.log(url.origin)
 		// return redirect(303, url.searchParams.get('redirectTo') ?? '/');
 		return fail(501, )
 
