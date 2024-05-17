@@ -1,13 +1,17 @@
 <script lang="ts">
     import type { Form } from "$lib"
     import { Card, Label, P } from "flowbite-svelte"
+    
+    const __filename = "content card.svelt"
 
     export let fiche: Form
 
     let answerView = false
+
+    $: cardStyle = `transform: rotateY(${answerView ? -180 : 0}deg); transform-style: preserve-3d;`
 </script>
 
-<Card class={`my-2 cursor-pointer ${answerView ? "dark:bg-gray-900 bg-gray-50" : ""}`} on:click={() => answerView = !answerView}>
+<Card class={`my-2 cursor-pointer ${answerView ? "dark:bg-gray-900 bg-gray-50" : ""} duration-1000`} style={cardStyle} on:click={() => answerView = !answerView}>
     <div class="innerCard" class:answerView>
         <div class="front flex-col">
             <div class="flex justify-between w-full">
@@ -20,7 +24,7 @@
             </div>
                 
         </div>
-        <div class="back p-4 sm:p-6" >
+        <div class="back p-4 sm:p-6">
             <Label>Réponses:</Label>
             <div class="flex flex-col justify-between">
                 {#each fiche.answers as aswer}
@@ -35,42 +39,41 @@
     .innerCard {
         position: relative;
         transform: rotateY(0deg);
-        transition: transform 0.4s;
+        /* transition: transform 4s; */
         transform-style: preserve-3d;
         height: 100%;
-        /* width: 100%; */
         user-select: none;
+        background-color: transparent;
     }
-    .innerCard.answerView {
-        transform: rotateY(180deg);
-    }
-    
 
     .front, .back {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		left: 0;
-        top: 0;
 		backface-visibility: hidden;
 		border-radius: 2em;
 		border: 1px solid var(--fg-2);
 		box-sizing: border-box;
 		padding: 0;
-        /* width: 100%; */
-
-/*         
-        min-height: 250px;
-        max-height: 500px; */
 	}
 
     .front {
         background-color: transparent;
     }
+
+    .innerCard.answerView > .front {
+        height: 0px;
+        overflow: hidden;
+    }
     .back {
-        position: absolute;
         width: 100%;
-        height: 100%;
+        height: 0;
         transform: rotateY(180deg);
+        overflow: hidden;
+    }
+
+    .innerCard.answerView > .back {
+        height: 100%;
+        overflow: visible;
     }
 </style>
