@@ -6,15 +6,24 @@
                 "question": "Signification de 耳 ?",
                 "answers": [
                     "oreil", "oreille", "oreils", "oreilles"
-                ]
+                ],
+                "lastTry": "2024-04-23T18:31:23.099Z",
+                "nextTry": "2025-04-23",
+                "level": 1
             },
             {
                 "question": "Signification de 目 ?",
-                "answers": ["oeil", "yeux"]
+                "answers": ["oeil", "yeux"],
+                "lastTry": "2024-04-23T18:31:23.099Z",
+                "nextTry": "2025-04-23",
+                "level": 1
             },
             {
                 "question":"Signification de 口 ?",
-                "answers": ["bouche", "bouches"]
+                "answers": ["bouche", "bouches"],
+                "lastTry": "2024-04-23T18:31:23.099Z",
+                "nextTry": "2025-04-23",
+                "level": 1
             }
         ]
     }

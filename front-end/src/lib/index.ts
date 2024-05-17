@@ -6,6 +6,11 @@ export type Form = {
     question: string
     answers: string[]
     tips?: string
+
+    // TODO: implement to backend
+    lastTry: Date
+    nextTry: Date
+    level: number
 }
 
 export type Collection = {
