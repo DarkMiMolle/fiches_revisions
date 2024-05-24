@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Form } from "$lib"
     import Separator from "$lib/Separator.svelte"
-    import { Card, Label, P } from "flowbite-svelte"
-    
+    import { Card, Indicator, Label, P, Tooltip } from "flowbite-svelte"
+   
     const __filename = "content card.svelt"
 
     export let fiche: Form
@@ -22,10 +22,13 @@
                 if (ev.key == 'Enter' && !ev.shiftKey) {
                     node.blur()
                     node.removeEventListener('keypress', edit)
-                    node.classList.remove('editing')
-                    node.addEventListener('click', editionClick)
                     return
                 }
+            })
+            node.addEventListener('blur', function onBlur(ev) {
+                node.classList.remove('editing')
+                node.addEventListener('click', editionClick)
+                node.removeEventListener('blur', onBlur)
             })
         }
         node.addEventListener('click', editionClick)
@@ -43,8 +46,13 @@
             tips = 'ø'
         }
     }
+
 </script>
 <Card class={`my-2 cursor-pointer ${answerView ? "dark:bg-gray-900 bg-gray-50" : ""} duration-1000`} style={cardStyle} on:click={() => answerView = !answerView}>
+    {#if initialFicheJSON != JSON.stringify(fiche)}
+    <Indicator color="orange" placement={answerView ? "top-left" : "top-right"}/>
+    <Tooltip placement="right">Il faut sauvegarder les changements</Tooltip>
+    {/if}
     <div class="innerCard" class:answerView>
         <div class="front flex-col">
             <div class="flex justify-between w-full">
@@ -53,9 +61,7 @@
             </div>
             <div class="flex justify-between w-full">
                 <Label>Tips:</Label>
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                <P><div class="cursor-context-menu px-[5px]" use:editable contenteditable="true" bind:textContent={tips} on:focus|stopPropagation={() => {if (tips == 'ø') tips = '\0'}} on:blur={() => {if (tips == '\0') tips = ''}}> {tips}</div></P>
+                <P><div class="cursor-context-menu px-[5px]" use:editable contenteditable="true" bind:textContent={tips} on:focus|stopPropagation={() => { setTimeout(() => {if (tips == 'ø') tips = '\0'}, 100)}} on:blur={() => {if (tips == '\0') tips = ''}}> {tips}</div></P>
             </div>
             <Separator darkColor="gray-700"/>
             <div class="flex justify-between w-full">
@@ -75,7 +81,7 @@
             <Label>Réponses:</Label>
             <div class="flex flex-col justify-between">
                 {#each fiche.answers as answer}
-                <P>{ answer }</P>
+                <P><div class="cursor-context-menu px-[5px]" use:editable contenteditable="true" bind:textContent={answer}></div></P>
                 {/each}
             </div>
         </div>
