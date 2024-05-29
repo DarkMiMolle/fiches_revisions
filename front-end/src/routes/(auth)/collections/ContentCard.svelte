@@ -2,12 +2,24 @@
     import type { Form } from "$lib"
     import Separator from "$lib/Separator.svelte"
     import { Card, Indicator, Label, P, Tooltip } from "flowbite-svelte"
+    import { createEventDispatcher } from "svelte"
    
     const __filename = "content card.svelt"
 
     export let fiche: Form
 
-    const initialFicheJSON = JSON.stringify(fiche)
+    let initialFicheJSON = JSON.stringify(fiche)
+    $: saved = initialFicheJSON == JSON.stringify(fiche)
+    let prevState = true
+    const dispatcher = createEventDispatcher()
+    $: {
+        if (saved != prevState) {
+            dispatcher("synchro", saved)
+            prevState = saved
+        }
+    }
+
+    
 
     let answerView = false
 
@@ -47,9 +59,13 @@
         }
     }
 
+    export function Save() {
+        initialFicheJSON = JSON.stringify(fiche)
+    }
+
 </script>
 <Card class={`my-2 cursor-pointer ${answerView ? "dark:bg-gray-900 bg-gray-50" : ""} duration-1000`} style={cardStyle} on:click={() => answerView = !answerView}>
-    {#if initialFicheJSON != JSON.stringify(fiche)}
+    {#if !saved}
     <Indicator color="orange" placement={answerView ? "top-left" : "top-right"}/>
     <Tooltip placement="right">Il faut sauvegarder les changements</Tooltip>
     {/if}

@@ -8,9 +8,11 @@
     const __filename = "collection.svelte"
 
     export let collection: Collection
-    const initialCollectionForms = JSON.stringify(collection.forms)
 
-    $: collectionFormsUpdated = initialCollectionForms != JSON.stringify(collection.forms)
+    let cardElements: ContentCard[] = Array<ContentCard>(collection.forms.length)
+
+    let formChange = 0
+    $: collectionFormsUpdated = formChange > 0 // initialCollectionForms != JSON.stringify(collection.forms)
 
     function dring(node: SVGSVGElement, {duration = 500}) {
         let prevTime = 0
@@ -36,7 +38,13 @@
     <div class="flex justify-space">
         <Heading tag="h5">{collection.name}</Heading>
         {#if collectionFormsUpdated}
-        <svg in:dring={{}} out:fade class="w-[26px] h-[26px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+        <svg on:click={() => {
+            formChange = 0
+            console.log(__filename, "call to backend to save data")
+            for(let elem of cardElements) {
+                elem.Save()
+            }
+        }} in:dring={{}} out:fade class="cursor-pointer w-[26px] h-[26px] text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
             <path d="M13.383 4.076a6.5 6.5 0 0 0-6.887 3.95A5 5 0 0 0 7 18h3v-4a2 2 0 0 1-1.414-3.414l2-2a2 2 0 0 1 2.828 0l2 2A2 2 0 0 1 14 14v4h4a4 4 0 0 0 .988-7.876 6.5 6.5 0 0 0-5.605-6.048Z"/>
             <path d="M12.707 9.293a1 1 0 0 0-1.414 0l-2 2a1 1 0 1 0 1.414 1.414l.293-.293V19a1 1 0 1 0 2 0v-6.586l.293.293a1 1 0 0 0 1.414-1.414l-2-2Z"/>
         </svg>
@@ -45,7 +53,7 @@
     </div>
     <Tabs tabStyle="underline">
         <TabItem open>
-            <span slot="title" class="flex items-center gap-2 p-[2px] md:p-5">
+            <span slot="title" class="flex items-center gap-2">
                 <InfoCircleSolid size="md" />
                 Info
             </span>
@@ -79,8 +87,14 @@
                 Fiches
             </span>
             <div class="flex flex-col justify-between items-center">
-                {#each collection.forms as form}
-                    <ContentCard bind:fiche={form}/>
+                {#each collection.forms as form, index}
+                    <ContentCard bind:this={cardElements[index]} bind:fiche={form} on:synchro={({detail}) => {
+                        if (detail) {
+                            formChange--
+                        } else {
+                            formChange++
+                        }
+                    }} />
                 {/each}
             </div>
         </TabItem>
@@ -96,3 +110,38 @@
     </Tabs>
     
 </Card>
+
+<!-- 
+
+
+    let svg: SVGSVGElement|null
+    let intervalID: number|undefined
+    $: {
+        
+        if (collectionFormsUpdated && svg != null && intervalID == undefined) {
+            let direction = 1
+            let count = 0
+            intervalID = setInterval(() => {
+                const angle = 20 - 10 * Math.random()
+                if (svg == null) return
+                svg!.style.transform = `rotateZ(${direction * angle}deg)`
+                svg!.style.scale = `${0.7 + Math.cos(count/10)}`
+                count++
+                if (count == 15) {
+                    direction = -direction
+                    count = 0
+                }
+            }, 5)
+            setTimeout(() => {
+                clearInterval(intervalID)
+                if (svg) {
+                    svg.style.transform = ""
+                    svg.style.scale = "1"
+                }
+            }, 500)
+        } else if (svg == null && intervalID != undefined) {
+            clearInterval(intervalID)
+            intervalID = undefined
+        }
+    }
+ -->
