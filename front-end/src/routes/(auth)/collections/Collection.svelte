@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Collection } from "$lib";
-    import { Card, Heading, Hr, List, Li, P, GradientButton, Tabs, TabItem, Indicator, Button } from "flowbite-svelte";
+    import { Card, Heading, Hr, List, Li, P, GradientButton, Tabs, TabItem, Indicator, Button, Tooltip } from "flowbite-svelte";
     import { AdjustmentsVerticalSolid, CloudArrowUpSolid, EditSolid, FileLinesSolid, InfoCircleSolid, PlaySolid } from "flowbite-svelte-icons";
     import ContentCard from "./ContentCard.svelte"
     import { fade } from "svelte/transition"
@@ -94,7 +94,7 @@
             {/if}
         </div>
         <Tabs tabStyle="underline">
-            <TabItem bind:open={infoOpen} disabled={formChange > 0} on:click={() => currentTab = 'info'}>
+            <TabItem bind:open={infoOpen} disabled={ currentTab != 'info' && formChange > 0} on:click={() => currentTab = 'info'}>
                 <span slot="title" class="flex items-center gap-2">
                     <InfoCircleSolid size="md" />
                     Info
@@ -123,7 +123,10 @@
                     </Li>
                 </List>
             </TabItem>
-            <TabItem disabled={formChange > 0} on:click={() => currentTab = 'fiche'}>
+            {#if currentTab != 'info' && formChange > 0 }
+                <Tooltip>Les modifications doivent être sauvegarder</Tooltip>
+            {/if}
+            <TabItem disabled={currentTab != 'fiche' && formChange > 0} on:click={() => currentTab = 'fiche'}>
                 <span slot="title" class="flex items-center gap-2">
                     <FileLinesSolid size="md" />
                     Fiches
@@ -134,6 +137,9 @@
                     {/each}
                 </div>
             </TabItem>
+            {#if currentTab != 'fiche' && formChange > 0 }
+                <Tooltip>Les modifications doivent être sauvegarder</Tooltip>
+            {/if}
             <TabItem disabled={formChange > 0} on:click={() => currentTab = 'reglage'}>
                 <span slot="title" class="flex items-center gap-2">
                     <AdjustmentsVerticalSolid size="md" />
@@ -143,6 +149,9 @@
                     mes réglages
                 </div>
             </TabItem>
+            {#if formChange > 0 }
+                <Tooltip>Les modifications doivent être sauvegarder</Tooltip>
+            {/if}
         </Tabs>
     </Card>
     
