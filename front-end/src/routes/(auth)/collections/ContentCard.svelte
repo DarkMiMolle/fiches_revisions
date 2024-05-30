@@ -6,6 +6,7 @@
    
     const __filename = "content card.svelt"
 
+    export let cardClass: string = ""
     export let fiche: Form
 
     let initialFicheJSON = JSON.stringify(fiche)
@@ -14,12 +15,19 @@
     const dispatcher = createEventDispatcher()
     $: {
         if (saved != prevState) {
+            console.log(__filename, {synchro: saved})
             dispatcher("synchro", saved)
             prevState = saved
         }
     }
-
     
+    export let inputSave = false
+    $: {
+        if (inputSave) {
+            initialFicheJSON = JSON.stringify(fiche)
+            setTimeout(() => inputSave = false, 1)
+        }
+    }
 
     let answerView = false
 
@@ -63,8 +71,13 @@
         initialFicheJSON = JSON.stringify(fiche)
     }
 
+    export function IsSaved(): boolean {
+        return saved
+    }
+
+
 </script>
-<Card class={`my-2 cursor-pointer ${answerView ? "dark:bg-gray-900 bg-gray-50" : ""} duration-1000`} style={cardStyle} on:click={() => answerView = !answerView}>
+<Card class={`my-2 cursor-pointer ${answerView ? "dark:bg-gray-900 bg-gray-50" : ""} duration-1000 ${cardClass}`} style={cardStyle} on:click={() => answerView = !answerView}>
     {#if !saved}
     <Indicator color="orange" placement={answerView ? "top-left" : "top-right"}/>
     <Tooltip placement="right">Il faut sauvegarder les changements</Tooltip>
